@@ -1,0 +1,11 @@
+@startuml Controller as is
+    class "Customer Controller" as customerController {
+        -customerService: CustomerService
+    }
+
+    class "Customer Service" as customerService {
+        +getCustomerDTOById: CustomerDTO
+    }
+
+    customerController --> customerService
+@enduml

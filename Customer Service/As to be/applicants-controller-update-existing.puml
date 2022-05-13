@@ -1,0 +1,36 @@
+@startuml Update an existing applicant
+    title Update an existing applicant
+
+    actor User as user
+    participant ApplicantsController as applicantsController
+    participant ApplicantsMapper as applicantsMapper
+    participant LegacyCustomerService as customerService
+    participant LegacyPersonService as personService
+	participant CustomerRepository as customerRepository
+	participant PersonRepository as personRepository
+	database PostgreSQL as db    
+
+    user -> applicantsController: Request with Applicant model inside\nand applicantId in the path
+        
+        applicantsController -> applicantsMapper: Convert Applicant into CustomerDTO
+        applicantsMapper -> applicantsController: Mapped CustomerDTO
+
+        applicantsController -> customerService: Update an existing CustomerDTO
+			customerService -> customerRepository: Existing CustomerDTO
+				customerRepository -> db: Update the customer record
+				db -> customerRepository: Saved record
+			customerRepository -> customerService: Updated CustomerDTO
+        customerService -> applicantsController: Updated CustomerDTO
+
+        applicantsController -> applicantsMapper: Convert Applicant into PersonDTO
+        applicantsMapper -> applicantsController: Mapped PersonDTO
+
+        applicantsController -> personService: Update an existing PersonDTO
+            personService -> personRepository: Existing PersonDTO
+				personRepository -> db: Update the person record
+				db -> personRepository: Updated record
+			personRepository -> personService: Updated PersonDTO        
+        personService -> applicantsController: Updated PersonDTO
+
+    applicantsController -> user: 204 NO CONTENT
+@enduml

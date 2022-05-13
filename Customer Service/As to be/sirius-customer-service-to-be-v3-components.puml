@@ -1,0 +1,32 @@
+@startuml Party Data Service To Be
+    actor User as user
+
+    participant Controller as controller
+    participant Service as service
+    participant Validator as validator
+    participant "DTO to Entity Mapper" as mapper
+    participant Repository as repository
+    database PostgreSQL as db
+
+    user -> controller: Request DTO
+        controller -> service: Pass DTO for processing
+            service -> validator: Validate DTO before processing
+            alt Validation is not successful
+                validator -> validator: Throw an instance of Validation Exception
+            end
+
+            service -> mapper: Map DTO to Entity
+            mapper -> service: Mapped Entity
+
+            service -> service: Perform business operation
+
+            service -> repository: Save processed Entity
+                repository -> db: Save a record
+                db -> repository: Saved record
+            repository -> service: Saved Entity
+
+            service -> mapper: Map Entity to DTO
+            mapper -> service: Mapped DTO
+        service -> controller: Processed DTO
+    controller -> user: Response DTO
+@enduml

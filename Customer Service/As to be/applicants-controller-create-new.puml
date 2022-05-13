@@ -1,0 +1,36 @@
+@startuml Create a new applicant
+    title Create a new applicant
+
+    actor User as user
+    participant ApplicantsController as applicantsController
+    participant ApplicantsMapper as applicantsMapper
+    participant LegacyCustomerService as customerService
+    participant LegacyPersonService as personService
+	participant CustomerRepository as customerRepository
+	participant PersonRepository as personRepository
+	database PostgreSQL as db
+
+    user -> applicantsController: Request with Applicant model inside
+        
+        applicantsController -> applicantsMapper: Convert Applicant into CustomerDTO
+        applicantsMapper -> applicantsController: Mapped CustomerDTO
+
+        applicantsController -> customerService: Create a new CustomerDTO
+			customerService -> customerRepository: New CustomerDTO
+				customerRepository -> db: New customer record
+				db -> customerRepository: Saved record
+			customerRepository -> customerService: Saved CustomerDTO
+        customerService -> applicantsController: Saved CustomerDTO
+
+        applicantsController -> applicantsMapper: Convert Applicant into PersonDTO
+        applicantsMapper -> applicantsController: Mapped PersonDTO
+
+        applicantsController -> personService: Create a new PersonDTO
+            personService -> personRepository: New PersonDTO
+				personRepository -> db: New person record
+				db -> personRepository: Saved record
+			personRepository -> personService: Saved PersonDTO
+		personService -> applicantsController: Saved PersonDTO
+
+    applicantsController -> user: 201 CREATED response and Location header
+@enduml

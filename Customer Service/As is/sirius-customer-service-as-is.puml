@@ -1,0 +1,43 @@
+@startuml As is state
+
+    package "REST Controllers Layer" {
+        class "Beneficial Owner\nController" as beneficialOwnerController
+        class "Business Controller" as businessController
+        class "Contact Number\nController" as contactNumberController
+        class "Customer Controller" as customerController
+        class "Deactivation Controller" as deactivationController
+        class "Payment Details\nController" as paymentDetailsController
+        class "Person Controller" as personController
+    }
+
+    package "Service Layer" {
+        class "Beneficial Owner\nService" as beneficialOwnerService
+        class "Business Service" as businessService
+        class "Contact Number\nService" as contactNumberService
+        class "Customer Service" as customerService
+        class "Deactivation Service" as deactivationService
+        class "Payment Details\nService" as paymentDetailsService
+        class "Person Service" as personalService
+        class "Legacy Person Service" as legacyPersonalService
+    }
+
+    beneficialOwnerController -down-> beneficialOwnerService
+    businessController -down-> businessService
+    contactNumberController -down-> contactNumberService
+    customerController -down-> customerService
+    deactivationController -down-> deactivationService
+    paymentDetailsController -down-> paymentDetailsService
+    personController -down-> personalService
+    personController -down-> legacyPersonalService
+
+    package "Data Access Layer" {
+        class "Beneficial Owner\nRepository" as beneficialOwnerRepository
+        class "Business Repository" as businessRepository
+        class "Contact Number Repository" as contactNumberRepository
+    }
+
+    package "Integration Layer" {
+
+    }
+
+@enduml

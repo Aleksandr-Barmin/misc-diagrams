@@ -1,0 +1,48 @@
+@startuml Customer Service - As To Be, v2, proposal
+    title: Customer Service - As To Be, v2, proposal
+
+    () "GET /v1/customers\nGET /v1/customers?email={email}\nPOST /v1/customers\nPUT /v1/customers/{customerId}\nPATCH /v1/customers/{customerId}\nPATCH /v1/customers/{customerId}/patch\nGET /v1/customers/{customerId}/check-existing-customer" as customerEndpoints
+    () "GET /v1/customers/{customerId}/business\nPOST /v1/customers/{customerId}/business\nPATCH /v1/businesses/{businessId}" as businessEndpoints
+
+    () "Credit Application Service Client" as creditApplicationServiceClient
+    () "SIC Code Service Client" as sicCodeServiceClient
+    () "Address Service Client" as addressServiceClient
+    () "BaaS Service Client" as baasServiceClient
+
+    () "Business Events Topic" as businessEventsTopic
+    () "Customer Events Topic" as customerEventsTopic
+    () "Person Events Topic" as personEventsTopic
+
+    package "Customer Service REST API" {
+        [Person Controller] as customerController
+        [Customer Service] as customerService
+        customerController -up-> customerEndpoints
+        customerController -down-> customerService
+        customerService -down-( customerEventsTopic
+
+        [Organization Controller] as businessController
+        [Business Service] as businessService
+        businessController -up-> businessEndpoints
+        businessController -down-> businessService
+        businessService -down-( businessEventsTopic
+    }
+
+    package "3-rd parties" {
+        [Credit Application Service] as creditApplicationService
+        creditApplicationService -up-> creditApplicationServiceClient
+
+        [SIC Code Service] as sicCodeService
+        sicCodeService -up-> sicCodeServiceClient
+
+        [Address Service] as addressService
+        addressService -up-> addressServiceClient
+
+        [BaaS Service] as baasService
+        baasService -up-> baasServiceClient
+
+        [Kafka] as kafka
+        kafka -up-> businessEventsTopic
+        kafka -up-> customerEventsTopic
+        kafka -up-> personEventsTopic
+    }
+@enduml

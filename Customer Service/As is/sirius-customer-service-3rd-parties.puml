@@ -1,0 +1,40 @@
+@startuml Customer Service 3-rd party interfaces
+    [Customer Service] as customerService
+    [Address Service] as addressService
+    [SIC Code Service] as sicCodeService
+    [Credit Application Service] as creditApplicationService
+    [Auth Service] as authService
+    [BaaS Service] as baasService
+
+    interface "Business Event Producer" as businessEventProducer
+    interface "Customer Event Producer" as customerEventProducer
+    interface "Deactivation Event Producer" as deactivationEventProducer
+    interface "Person Event Producer" as personEventProducer
+
+    interface "Address Service Client" as addressServiceClient
+    interface "SIC Code Service Client" as sicCodeServiceClient
+    interface "Credit Application Service Client" as creditApplicationServiceClient
+    interface "Auth Service Client" as authServiceClient
+    interface "BaaS Service Client" as baasServiceClient
+
+    interface "Application Expired Event Consumer" as applicationExpiredEventConsumer
+
+    addressService -down- addressServiceClient
+	sicCodeService -down- sicCodeServiceClient
+    creditApplicationService -down- creditApplicationServiceClient
+    authService -down- authServiceClient
+	baasService -down- baasServiceClient
+
+    customerService -up-> creditApplicationServiceClient
+    customerService -up-> authServiceClient
+    customerService -up-> baasServiceClient 
+    customerService -up-> addressServiceClient    
+    customerService -up-> sicCodeServiceClient
+
+    customerService -down-> businessEventProducer
+    customerService -down-> customerEventProducer
+    customerService -down-> deactivationEventProducer
+    customerService -down-> personEventProducer
+
+    customerService -down-> applicationExpiredEventConsumer
+@enduml

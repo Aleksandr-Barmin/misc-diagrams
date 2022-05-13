@@ -1,0 +1,35 @@
+@startuml Sirius Customer Service as to be
+    package "Customer Service API" {
+        package "REST Controllers" {
+            [Customer Controller] as customerController
+            [Person Controller] as personController
+            [Business Controller] as businessController
+        }
+
+        package "DTO adapters" {
+            [Customer Transformer]
+            [Person Transformer]
+            [Business Transformer]
+        }
+    }
+
+    package "Customer Service Common" {
+        package "Services" {
+
+        }
+
+        package "Validators" {
+
+        }
+
+        package "Data access layer" {
+
+        }
+    }
+
+    package "Customer Service Client" {
+        [Customer Client]
+        [Person Client]
+        [Business Client]
+    }
+@enduml

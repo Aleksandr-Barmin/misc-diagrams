@@ -1,0 +1,183 @@
+@startuml Onboarding end-to-end
+    actor User as user
+    participant "Onboarding App" as app
+    participant "Launch Darkly" as launchDarkly
+    participant "Auth Service" as authService
+    participant "Customer Service" as customerService
+    participant "Consent Service" as consentService
+    database "Customer Service\nPostgreSQL" as db
+    participant "Address Service" as addressService
+    participant "Employment Service" as employmentService
+    participant "Application Service" as applicationService
+
+    group Any channel app
+        user --> app: First Name, Last Name, EMail
+        app --> user: Magic Link
+    end
+
+    group User opens a magic link
+        user --> app: Magic link\nGET /magic-link/?token={token}
+            note right
+                Token conten example: 
+                {
+                    "product": "PCA",
+                    "iss": "sirius-auth-challenge",
+                    "exp": 1651230184,
+                    "iat": 1651228384,
+                    "challengeParameter": "2115222",
+                    "email": "Aleks05@dev.sirius.tlzproject.com"
+                }
+            end note
+        
+            app --> launchDarkly: GET /sdk/goals/{someToken}
+        
+            app --> launchDarkly: GET /sdk/evalx/{anotherToken}/users/{anotherToken}
+            launchDarkly --> app: Feature toggle values
+
+            app --> launchDarkly: send click stream GET /eval/{token}/{token}
+
+            app --> authService: POST /v1/auth/tokens
+                note right
+                    {
+                        "session_id":"b8dd4a12-67ce-467b-90b5-19175f545151",
+                        "challenge_response_token":"<JWT TOKEN>"
+                    }            
+                end note
+            authService --> app: OAuth 2.0 tokens
+                note right
+                    Response example: 
+                    {
+                        "customer_id":"e76ec0d0-3f3a-4114-a3ea-21197f6b5f68",
+                        "scope":"Bearer",
+                        "refresh_token":"f4f17a8d-a4e5-457f-a7dd-36c29eb09098",
+                        "access_token":"6ab9a9e2-d7b5-4492-a99b-039e188f3539",
+                        "id_token":null,
+                        "access_token_expiry":3600
+                    }
+                end note
+
+            app --> addressService: GET /v1/addresses?addressable_type=CUSTOMER&addressableId={applicationId?}
+            addressService --> app: empty response, []
+
+            app --> customerService: GET /v1/customers/{customerId}/persons
+            customerService --> app: response with personId and applicationId only
+
+            app --> consentService: GET /v1/customers/{customerId}/consents?consent_type=PRODUCT_TERMS
+            consentService --> app: empty response, []
+
+            app --> customerService: GET /v1/customers/{customerId}
+            customerService --> app: response with personId, customerId and applicationId
+
+        app --> user: Email confirmed screen
+    end
+
+    group Screen with the product select
+        user --> app: User selects a product
+
+            app --> applicationService: PATCH /v1/applications/{applicationId}
+            applicationService --> app: 204 Response code
+
+            app --> consentService: POST /v1/customers/{customerId}/consents
+            consentService --> app: 204 Response code
+
+        app --> user: About you screen
+    end
+
+    group First screen
+        user --> app: Middle name, DOB, tax residence...
+
+            app --> customerService: Update a person\nPATCH /v1/customers/{customerId}/persons/patch
+            customerService --> app: 204 No Content response
+
+            app --> customerService: GET /v1/customers/{customerId}/persons
+            customerService --> app: Customer object
+
+        app --> user: Form to enter Address in UK
+    end
+
+    group Contact details in address in UK
+        user --> app: Enters address for lookup
+
+            app --> addressService: GET /v1/addresses?addressable_type=CUSTOMER&addressable_id={id}
+            addressService --> app: empty response, []
+
+            app --> applicationService: GET /v1/applications/{applicationId}
+            applicationService --> app: application information
+
+            app --> consentService: POST /v1/customers/{customerId}/consents
+            consentService --> app: consent details
+
+            group Lookup of the address
+                app --> addressService: Lookup the address\nGET /v1/paf-addresses/lookup?postcode={query}
+                addressService --> app: List of addresses for dropdown list
+
+                group Address does not exist
+                    app --> addressService: Create a new address\nPOST /v1/addresses
+                    addressService --> app: Created address
+                end
+            end
+
+            app --> customerService: Update the person record\nPATCH /v1/customers/{customerId}/persons/patch
+            customerService --> app: 204 No Content response
+
+            app --> customerService: GET /v1/customers/{customerId}/persons
+            customerService --> app: Customer object
+
+            app --> addressService: GET /v1/addresses?addressable_type=CUSTOMER&addressable_id={id}
+            addressService --> app: List of addresses
+
+            app --> consentService: GET /v1/customers/{customerId}/consents
+            consentService --> app: Consent details
+
+            app --> applicationService: GET /v1/applications/{applicationId}
+            applicationService --> app: Application information
+
+            app --> customerService: POST /v1/customers/{customerId}/check-existing-customer
+            customerService --> app: Check result
+    
+        app --> user: Form to enter employment details
+    end
+
+    group Employment
+        user --> app: Enters occupation
+            group Occupation lookup
+                app --> employmentService: Lookup the employment\nGET /v1/employments/occupations?q={query}
+                employmentService --> app: List of occupations
+
+                app --> user: List of occupations
+                user --> app: Selects an occupation
+            end
+
+            app --> customerService: Update the person record\nPATCH /v1/customers/{customerId}/persons/patch
+            customerService --> app: 204 No Content response
+
+        app --> user: Form to enter account purpose
+    end
+
+    group Account purpose
+        user --> app: Enters account purpose
+
+            app --> applicationService: Update application\nPATCH /v1/applications/{applicationId}
+            applicationService --> app: 204 No Content response
+
+            app --> customerService: GET /v1/customers/{customerId}/persons
+            customerService --> app: Customer object
+
+            app --> applicationService: Soft credit check\nPOST /v1/applications/{applicationId}/soft-credit-check
+            applicationService --> app: 202 Accepted response
+
+        app --> user: Form to enter overdraft
+    end
+
+    group Overdraft
+        user --> app: Enter overdraft details
+            app --> applicationService: Update application\nPATCH /v1/applications/{applicationId}
+            applicationService --> app: 204 No Content response
+        app --> user: Form to proof the identity
+    end
+
+    group Proof the identity
+        user --> app: Confirms the consent
+        app --> user: Big loading icon :)
+    end
+@enduml

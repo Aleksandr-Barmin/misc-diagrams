@@ -1,0 +1,29 @@
+@startuml Sirius Address Service: Create a new address
+    actor "Client" as client
+    participant "Address Controller" as addressController
+    participant "Address Service" as addressService
+    participant "Address Repository" as addressRepository
+    participant "Address Domain\nObject converter" as addressMapper
+
+    client -> addressController: POST /addresses\n+ CreateAddressDTO in the request
+        addressController -> addressService: CreateAddressDTO as a parameter
+
+            addressService -> addressMapper: CreateAddressDTO as a parameter
+
+                addressMapper -> addressMapper: Create a new Address entity
+                addressMapper -> addressMapper: Create a new VersionedAddressData entity\nwith version number 1
+
+            addressMapper -> addressService: Address entity
+
+            addressService -> addressRepository: Newly created Address entity
+            addressRepository -> addressService: Saved Address entity
+
+            addressService -> addressMapper: Address entity
+            addressMapper -> addressMapper: extract last VersionedAddressData\nfrom the Address entity
+            addressMapper -> addressMapper: create AddressDTO and copy values\nfrom VersionedAddressData
+            addressMapper -> addressService: AddressDTO
+
+        addressService -> addressController: AddressDTO
+    addressController -> client: AddressDTO in body and\n201 Created (+ location) header
+
+@enduml

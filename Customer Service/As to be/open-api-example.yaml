@@ -1,0 +1,319 @@
+openapi: 3.0.1
+info:
+  title: Party Onboarding
+  description: Party Data BaaS API
+  version: 0.0.1
+servers:
+- url: /v1/applicants
+paths:
+  /:
+    post:
+      summary: Creates an applicant
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/request'
+        required: false
+      responses:
+        201:
+          description: Some description
+          headers:
+            Location:
+              description: URL to get a newly created applicant
+              schema:
+                type: string
+              example: /v1/applicants/id123456
+          content: {}
+        400:
+          description: Some error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: Request body
+  /{applicantId}:
+    get:
+      summary: Get an applicant
+      parameters:
+      - name: applicantId
+        in: path
+        example: id123456
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: all ok
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/request'
+components:
+  schemas:
+    request:
+      type: object
+      properties:
+        onboarding:
+          $ref: '#/components/schemas/Onboarding'
+        applicant:
+          $ref: '#/components/schemas/Applicant'
+    Onboarding:
+      type: object
+      properties:
+        application:
+          maxLength: 50
+          type: string
+          description: Acronym of the onboarding application
+          example: BCA
+        sessionId:
+          type: string
+          description: Session ID
+          example: 2009e86f-a276-4c53-94cd-63e34f42decb
+      description: Data structure containing onboarding information
+    Applicant:
+      type: object
+      properties:
+        applicantId:
+          type: string
+          description: Unique applicant ID
+          example: id123456
+        person:
+          $ref: '#/components/schemas/Person'
+        contactPoint:
+          $ref: '#/components/schemas/ContactPoint'
+        organization:
+          $ref: '#/components/schemas/Organization'
+      description: Data structure containing information about an applicant
+    Person:
+      type: object
+      properties:
+        personName:
+          $ref: '#/components/schemas/PersonName'
+        genderDescription:
+          type: string
+          description: Gender description of the person
+          example: Male
+        birthDate:
+          type: string
+          description: |-
+            Date when the person was born.
+            The value uses the complete data format defined in ISO 8601:
+            'YYYY-MM-DD'
+            Where:
+            - YYYY: 4-digit year
+            - MM: 2-digit month (for example, 01 = January)
+            - DD: 2-digit day of the month (01 through 31)
+          format: date
+          example: YYYY-MM-DD
+        placeOfBirth:
+          $ref: '#/components/schemas/PlaceOfBirth'
+        countryOfResidence:
+          $ref: '#/components/schemas/Country'
+        firstNationality:
+          $ref: '#/components/schemas/Country'
+        secondNationality:
+          $ref: '#/components/schemas/Country'
+        thirdNationality:
+          $ref: '#/components/schemas/Country'
+        foreignTaxes:
+          type: array
+          description: Array of tax obligations in foreign countries
+          items:
+            type: object
+            properties:
+              country:
+                $ref: '#/components/schemas/Country'
+              document:
+                $ref: '#/components/schemas/Document'
+        residentialStatusDescription:
+          type: string
+          description: Residential status description of the person
+          example: Resident
+      description: Data structure containing information about a natural person
+    PersonName:
+      type: object
+      properties:
+        namePrefixDescription:
+          type: string
+          description: Description of the term used to formally address a person
+          example: Doctor
+        givenName:
+          maxLength: 50
+          type: string
+          description: Person's first name
+          example: John
+        middleName:
+          maxLength: 100
+          type: string
+          description: Person's second name
+          example: Nicolas
+        lastName:
+          maxLength: 50
+          type: string
+          description: Person's family name
+          example: Clark
+        birthName:
+          maxLength: 50
+          type: string
+          description: Name of the person that was received at birth, such as their
+            maiden name
+          example: Artis
+        aliases:
+          type: array
+          description: Array of the person's alternative names, also known as aliases
+          example:
+          - alias1
+          - alias2
+          items:
+            type: string
+      description: Data structure containing information about a person's name. The
+        information included in the data structure is for the name by which the person
+        is known and that is usually used to identify the person.
+    PlaceOfBirth:
+      type: object
+      properties:
+        country:
+          $ref: '#/components/schemas/Country'
+      description: Data structure containing details about a person's birthplace
+    Country:
+      type: object
+      properties:
+        code:
+          maxLength: 3
+          type: string
+          description: Country code. The value is based on the ISO 3166 (https://www.iso.org/obp/ui/#search/code/).
+          example: US
+      description: Data structure containing country information
+    Document:
+      type: object
+      properties:
+        documentNumber:
+          type: string
+          description: Document number.
+          example: 50456713W
+      description: Data structure containing information to identify an entity, a
+        person, or an organization.
+    ContactPoint:
+      type: object
+      properties:
+        postalAddresses:
+          type: array
+          description: Array of information that locates and identifies a postal address
+          items:
+            $ref: '#/components/schemas/PostalAddress'
+        phoneAddresses:
+          type: array
+          description: Array of information that identifies a phone address
+          items:
+            $ref: '#/components/schemas/PhoneAddress'
+        electronicAddresses:
+          type: array
+          description: Array of information that identifies an electronic address
+          items:
+            $ref: '#/components/schemas/ElectronicAddress'
+      description: Data structure containing information about a contact point. A
+        contact point is a phone number, physical address, or virtual address used
+        for communication purposes.
+    PostalAddress:
+      type: object
+      properties:
+        addressId:
+          type: string
+          description: Unique address ID
+          example: "1234"
+        addressTypeDescription:
+          type: string
+          description: Address type description
+          example: Residential
+        postBoxTypeDescription:
+          maxLength: 56
+          type: string
+          description: Description of the post box type
+          example: PERSONAL POSTBOX
+        validityPeriod:
+          $ref: '#/components/schemas/Period'
+      description: Data structure containing information that locates and identifies
+        a postal address
+    Period:
+      type: object
+      properties:
+        startDate:
+          type: string
+          description: |-
+            Date when the period starts.
+            The value uses the complete data format defined in ISO 8601:
+            'YYYY-MM-DD'
+            Where:
+            - YYYY: 4-digit year
+            - MM: 2-digit month (for example, 01 = January)
+            - DD: 2-digit day of the month (01 through 31)
+          format: date
+          example: 2020-07-21
+      description: Data structure containing period information
+    PhoneAddress:
+      type: object
+      properties:
+        mobileNumber:
+          maxLength: 35
+          type: string
+          description: Mobile phone number, as defined by a telecom service
+          example: "0711111111"
+        phoneNumber:
+          maxLength: 35
+          type: string
+          description: Phone number, as defined by a telecom service
+          example: "01908111111"
+        internationalCode:
+          maxLength: 4
+          type: string
+          description: International country calling code (https://www.itu.int/itudoc/itu-t/ob-lists/icc/e164_763.pdf)
+          example: "44"
+        useDescription:
+          type: string
+          description: Device usage description
+          example: personal
+      description: Data structure containing information that identifies a phone address
+      example:
+      - internationalCode: "44"
+        phoneNumber: "01908555555"
+      - internationalCode: "44"
+        mobileNumber: "077777777"
+    ElectronicAddress:
+      type: object
+      properties:
+        emailAddress:
+          maxLength: 256
+          type: string
+          description: Email address
+          example: john.doe@santander.us
+        useDescription:
+          type: string
+          description: Device usage description
+          example: Personal
+      description: Data structure containing information that identifies an electronic
+        address
+    Organization:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          description: Unique legal entity ID
+          example: J123456789
+      description: Data structure containing information about a legal entity
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Unique alphanumeric human readable error code
+          example: J1234567891
+        message:
+          type: string
+          description: Brief summary of the reported issue
+          example: J1234567891
+        description:
+          type: string
+          description: Detailed description of the reported issue. catarina test
+          example: J1234567891
+      description: Data structure containing the error details

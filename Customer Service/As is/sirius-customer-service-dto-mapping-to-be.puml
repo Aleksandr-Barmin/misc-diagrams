@@ -1,0 +1,18 @@
+@startuml Controller as is
+    class "Customer Controller" as customerController {
+        -customerService: CustomerService
+        -customerMapper: CustomerDtoToDomainMapper
+    }
+
+    class "Customer DTO to Domain Mapper" as mapper {
+        +map(CustomerDTO): CustomerDomain
+        +map(CustomerDomain): CustomerDTO
+    }
+
+    class "Customer Service" as customerService {
+        +getCustomerDTOById(UUID customerId): CustomerDTO
+    }
+
+    customerController --> mapper
+    mapper --> customerService
+@enduml

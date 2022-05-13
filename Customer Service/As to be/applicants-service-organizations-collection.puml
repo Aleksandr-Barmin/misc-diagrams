@@ -1,0 +1,48 @@
+@startjson Organizations collection
+    {
+        "organizationId": "String", 
+        "organizationName": {
+            "legalName": "String",
+            "tradingName": "String",
+            "shortName": "String",
+            "namePrefixCode": "String",
+            "namePrefixDescription": "String"
+        },
+        "document": "Document",
+        "documents": "Document[]",
+        "typeCode": "String",
+        "typeDescription": "String",
+        "subTypeCode": "String",
+        "subTypeDescription": "String",
+        "registrationDate": "String",
+        "entityDisolutionDate": "String",
+        "accountingSectorCode": "String",
+        "accountingSectorDescription": "String",
+        "residentialStatusCode": "String",
+        "residentialStatuDescription": "String",
+        "foregnTaxIndicator": "String",
+        "segmentation": "Segmentation",
+        "segmentations": "Segmentation[]",
+        "placeOfRegistration": {
+                "country": "Country", 
+                "state": "State", 
+                "city": "City"
+        },
+        "countryOfRegistration": "Country", 
+        "economicActivity": {
+            "categoryCode": "String", 
+            "categoryDescription": "String", 
+            "subCategoryCode": "String", 
+            "subCategoryDescription": "String"
+        },
+        "highConfidentialityIndicator": "boolean",
+        "confidentialityLevel": "String",
+        "preferredLanguage": "Language",
+        "bank": "Bank",
+        "dataOrigins": "DataOrigin[]",
+        "originalCreationDate": "String",
+        "audit": "Audit", 
+        "user": "User",
+        "consents": "Consent"
+    }
+@endjson

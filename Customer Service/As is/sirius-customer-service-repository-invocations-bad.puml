@@ -1,0 +1,22 @@
+@startuml Best practice in using repository
+    
+    package "Service Layer" {
+        class "Beneficial Owner Service" as service1
+        class "Business Service" as service2
+    }
+
+    package "Data Access Layer" {
+        class "Beneficial Owner Repository" as repository1
+        class "Business Repository" as repository2
+    }
+
+    service1 --> repository1
+    service2 --> repository2
+
+    service1 -right-> repository2
+    note bottom on link
+        Invocation of antoher repository from
+        the service layer
+    end note
+
+@enduml

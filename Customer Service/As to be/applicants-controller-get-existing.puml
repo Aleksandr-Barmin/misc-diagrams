@@ -1,0 +1,33 @@
+@startuml Get an existing applicant
+    title Get an existing applicant
+
+    actor User as user
+    participant ApplicantsController as applicantsController
+    participant ApplicantsMapper as applicantsMapper
+    participant LegacyCustomerService as customerService
+    participant LegacyPersonService as personService
+	participant CustomerRepository as customerRepository
+	participant PersonRepository as personRepository
+	database PostgreSQL as db        
+
+    user -> applicantsController: Request with applicant's id or email
+
+        applicantsController -> customerService: Get CustomerDTO by id or email
+			customerService -> customerRepository: Get CustomerDTO from DB
+				customerRepository -> db: Retrieve a record from DB
+				db -> customerRepository: Retrieved record
+			customerRepository -> customerService: Found CustomerDTO 
+        customerService -> applicantsController: Found CustomerDTO
+
+        applicantsController -> personService: Get PersonDTO by customer's id
+            personService -> personRepository: Get PersonDTO from DB
+				personRepository -> db: Retrieve a record from DB
+				db -> personRepository: Retrieved record
+			personRepository -> personService: Found PersonDTO       
+        personService -> applicantsController: Found PersonDTO
+        
+        applicantsController -> applicantsMapper: Convert CustomerDTO and PersonDTO to Applicant
+        applicantsMapper -> applicantsController: Mapped Applicant
+
+    applicantsController -> user: Response with applicant inside
+@enduml

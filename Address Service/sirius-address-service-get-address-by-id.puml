@@ -1,0 +1,51 @@
+@startuml Sirius Address Service: Get Customer by ID
+    actor "Client" as client
+    participant "Address Controller" as addressController
+    participant "Address Service" as addressService
+    participant "Address Repository" as addressRepository
+    participant "Address Domain\nObject converter" as addressMapper
+
+    client -> addressController: GET /addresses/{addressId}
+
+        alt Version parameter is present
+
+            addressController -> addressService: UUID addressId and Integer version
+                
+                addressService -> addressRepository: get address by UUID
+                alt Record is found
+                    addressRepository -> addressService: Address Entity
+
+                    addressService -> addressMapper: Address Entity and version from request
+                    addressMapper -> addressMapper: extract VersionedAddressData\nfrom the Address entity
+                    addressMapper -> addressMapper: create AddressDTO and copy values\nfrom VersionedAddressData
+                    addressMapper -> addressService: AddressDTO
+                else Record is not found
+                    addressRepository -> addressService: empty Mono
+                    addressService -> addressService: Throws an exception
+                end
+
+            addressService -> addressController: AddressDTO
+
+        else Version parameter is not present
+
+            addressController -> addressService: UUID addressId
+
+                addressService -> addressRepository: get address by UUID
+                alt Record is found
+                    addressRepository -> addressService: Address Entity
+
+                    addressService -> addressMapper: Address Entity only
+                    addressMapper -> addressMapper: extract last VersionedAddressData\nfrom the Address entity
+                    addressMapper -> addressMapper: create AddressDTO and copy values\nfrom VersionedAddressData
+                    addressMapper -> addressService: AddressDTO
+                else Record is not found
+                    addressRepository -> addressService: empty Mono
+                    addressService -> addressService: Throws an exception
+                end
+
+            addressService -> addressController: AddressDTO
+
+        end
+
+    addressController -> client: AddressDTO
+@enduml

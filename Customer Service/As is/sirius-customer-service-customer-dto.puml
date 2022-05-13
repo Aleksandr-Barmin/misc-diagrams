@@ -1,0 +1,106 @@
+@startuml CustomerDTO
+    class CustomerDTO {
+        UUID customerId: customer_id
+        UUID personId: person_id
+        String email: email
+        CountryCode countryCode: country_code
+        Instant deletedAt: deleted_at
+        Instant deactivatedAt: deactivated_at
+        Instant createdAt: created_at
+        Instant updatedAt: updated_at
+        String updatedBy: updated_by
+        List<String> updatedByRoles: updated_by_roles
+    }
+
+    class PersonDTO {
+        UUID personId: person_id
+        UUID businessId: business_id
+        UUID applicationId: application_id
+        String salutation: salutation
+        String givenName: given_name
+        String middleNames: middle_names
+        String familyName: family_name
+        String maidenName: maiden_name
+        Set<String> otherNames: other_names
+        String dateOfBirth: date_of_birth
+        List<String> nationalities: nationalities
+        String countryOfBirth: country_of_birth
+        String primaryContactNumber: primary_contact_number
+        UUID addressId: address_id
+        AccommodationCircumstances accommodationCircumstances: accommodation_circumstances
+        Gender gender: gender
+        Set<AddressHistoryDto> addressHistory: address_history
+        EmploymentDTO employment: employment
+        List<IncomeDetailDTO> incomeDetails: income_details
+        Set<TaxResidencyDTO> taxResidencies: tax_residence_data
+        BigDecimal monthlyOutgoings: monthly_outgoings
+        Integer financialDependents: financial_dependents
+        boolean softCreditCheckCompleted: soft_credit_check_completed
+        Boolean isExistingCustomer: is_existing_customer
+        String existingCustomerId: existing_customer_id
+        Instant createdAt: created_at
+        Instant updatedAt: updated_at
+    }
+
+    CustomerDTO --> PersonDTO
+
+    class Customer {
+        String customerId
+        Person person
+        Organization organization
+        ContactPoin contactPoint
+        Period validityPeriod
+    }
+
+    class Person {
+        String personId
+        PersonName personName
+        Document document
+        List<Document> documents
+        String genderCode
+        String genderDescription
+        Language preferredLanguage
+        String birthDate
+        PlaceOfBirth placeOfBirth
+        EmploymentInformation employmentInformation
+        String occupationCode 
+        String occupationDescription 
+        List<EconomicActivity> economicActivity 
+        String accountingSectorCode 
+        String accountingSectorDescription 
+        Country firstNationality 
+        Country secondNationality 
+        Country thirdNationality 
+        Country countryOfResidence 
+        String foreignTaxIndicator 
+        String civilStatusCode 
+        String civilStatusDescription 
+        String educationalLevelCode 
+        String educationalLevelDescription 
+        String employeeIndicator
+        String deceasedIndicator 
+        String deathDate 
+        List<Segmentation> segmentations 
+        Segmentation segmentation 
+        String residentialStatusCode 
+        String residentialStatusDescription 
+        String staffCode
+        String staffDescription 
+        Boolean legallyIncapacitated 
+        Boolean legallyCapableMinor 
+        Boolean diplomatic 
+        String motherName 
+        String fatherName 
+        PublicOfficeInformation publicOfficeInformation 
+        Boolean highConfidentialityIndicator 
+        String confidentialityLevel 
+        Bank bank 
+        List<DataOrigin> dataOrigins 
+        String originalCreationDate 
+        Audit audit 
+        Boolean isRobinson 
+        List<Consent> consents 
+    }
+
+    Customer --> Person
+@enduml

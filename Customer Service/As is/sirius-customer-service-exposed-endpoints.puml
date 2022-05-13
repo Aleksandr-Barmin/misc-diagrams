@@ -1,0 +1,20 @@
+@startuml Exposed endpoints overview
+    [Customer Service] as customerService
+
+    package "customer-service-client" {
+        customerService --> BusinessClient: publishes
+        customerService --> BeneficialOwnerClient: publishes
+        customerService --> CustomerClient: publishes
+        customerService --> PersonClient: publishes
+    }
+
+    package "customer-service-api" {
+        customerService -up-> BeneficialOwnerController: exposes HTTP endpoint
+        customerService -up-> BusinessController: exposes HTTP endpoint
+        customerService -up-> ContactNumberController: exposes HTTP endpoint
+        customerService -up-> CustomerController: exposes HTTP endpoint
+        customerService -up-> DeactivationController: exposes HTTP endpoint
+        customerService -up-> PaymentDetailsController: exposes HTTP endpoint
+        customerService -up-> PersonController: exposes HTTP endpoint
+    }
+@enduml
