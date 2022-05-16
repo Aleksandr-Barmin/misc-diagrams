@@ -1,0 +1,28 @@
+@startuml Get an existing organization
+    title Get an existing organization
+
+    actor User as user
+    participant OrganizationController as organizationController
+    participant OrganizationService as organizationService
+    participant OrganizationMapper as organizationMapper
+    participant OrganizationRepository as organizationRepository
+    database PostgreSQL as db
+
+    user -> organizationController: Organization ID in the query string
+        organizationController -> organizationService: ID of organization to retrieve
+
+            organizationService -> organizationRepository: ID of organization to retrieve
+                organizationRepository -> db: ID of record to retrieve
+                db -> organizationRepository: Organization's record
+            organizationRepository -> organizationService: Organization entity from DB
+
+            alt Organization with given ID was not found
+                organizationService -> organizationService: Throw an instance of Not Found Exception
+            end 
+
+            organizationService -> organizationMapper: Organization entity for mapping
+            organizationMapper -> organizationService: OrganizationDTO
+
+        organizationService -> organizationController: OrganizationDTO
+    organizationController -> user: OrganizationDTO
+@enduml
