@@ -1,0 +1,47 @@
+@startuml Patch an existing applicant
+    title Patch an existing applicant
+
+    actor User as user
+    participant ApplicantController as applicantController
+    participant ApplicantService as applicantService
+    participant ApplicantMapper as applicantMapper
+    participant ApplicantValidator as applicantValidator
+    participant ApplicantRepository as applicantRepository
+    database PostgreSQL as db
+
+    user -> applicantController: Applicant DTO in the request body,\nApplicant ID in the query string
+        applicantController -> applicantService: Applicant DTO to update,\nApplicant ID to update
+
+            applicantService -> applicantValidator: Validate the incoming ApplicantDTOs
+            alt Validation failure
+                applicantValidator -> applicantValidator: Throw an instance of Validation Exception
+            end
+
+            applicantService -> applicantRepository: Get exiting applicant by Applicant ID
+                applicantRepository -> db: ID of record to retrieve
+                db -> applicantRepository: Applicant's record            
+            applicantRepository -> applicantService: Existing Applicant DTO
+            
+            alt Applicant with given ID was not found
+                applicantService -> applicantService: Throw an instance of Not Found Exception
+            end 
+
+            applicantService -> applicantMapper: Map existing Applicant entity or Applicant DTO
+            applicantMapper -> applicantService: Mapped existing Applicant DTO
+
+            applicantService -> applicantService: Update existing Applicant DTO with values\n from DTO from the request
+
+            applicantService -> applicantMapper: Map updated Applicant DTO to Applicant entity
+            applicantMapper -> applicantService: Mapped update Applicant entity
+
+            applicantService -> applicantRepository: Save Applicant entity
+                applicantRepository -> db: Update record
+                db -> applicantRepository: Updated record
+            applicantRepository -> applicantService: Saved Applicant entity
+
+            applicantService -> applicantMapper: Map Applicant entity to Applicant DTO
+            applicantMapper -> applicantService: Mapped Applicant DTO
+
+        applicantService -> applicantController: Updated Applicant DTO
+    applicantController -> user: 204 NO CONTENT header
+@enduml
