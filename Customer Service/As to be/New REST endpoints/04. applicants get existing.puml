@@ -1,0 +1,28 @@
+@startuml Get an existing applicant
+    title Get an existing applicant
+
+    actor User as user
+    participant ApplicantController as applicantController
+    participant ApplicantService as applicantService
+    participant ApplicantMapper as applicantMapper
+    participant ApplicantRepository as applicantRepository
+    database PostgreSQL as db
+
+    user -> applicantController: Applicant ID in the query string
+        applicantController -> applicantService: ID of applicant to retrieve
+
+            applicantService -> applicantRepository: ID of applicant to retrieve
+                applicantRepository -> db: ID of record to retrieve
+                db -> applicantRepository: Applicant's record
+            applicantRepository -> applicantService: Applicant entity from DB
+
+            alt Applicant with given ID was not found
+                applicantService -> applicantService: Throw an instance of Not Found Exception
+            end 
+
+            applicantService -> applicantMapper: Applicant entity for mapping
+            applicantMapper -> applicantService: Applicant DTO
+
+        applicantService -> applicantController: Applicant DTO
+    applicantController -> user: Applicant DTO
+@enduml
