@@ -17,14 +17,8 @@
         * economic_activity_category_code: VARCHAR(2) <<FK>>
         * economic_activity_sub_category_code: VARCHAR(2) <<FK>>
 
-        * audit_creation_user: VARHCAR(255)
-        * audit_creation_user_group: VARCHAR(255)
-        * audit_creation_date: VARCHAR(10)
         * audit_creation_date_time: VARCHAR(20)
-        * audit_last_update_user: VARCHAR(255)
-        * audit_last_update_date: VARCHAR(10)
         * audit_last_update_date_time: VARCHAR(20)
-        * audit_last_accessed_date_time: VARCHAR(20)
     }
 
     entity "Organization Types" as organizationTypes {
@@ -93,14 +87,8 @@
         * employment_employeer_activity_sub_category_code: VARCHAR(2) <<FK>>
         * employment_employeer_control_stake_indicator: BOOLEAN
 
-        * audit_creation_user: VARHCAR(255)
-        * audit_creation_user_group: VARCHAR(255)
-        * audit_creation_date: VARCHAR(10)
         * audit_creation_date_time: VARCHAR(20)
-        * audit_last_update_user: VARCHAR(255)
-        * audit_last_update_date: VARCHAR(10)
         * audit_last_update_date_time: VARCHAR(20)
-        * audit_last_accessed_date_time: VARCHAR(20)
     }
 
     entity "Applicant Genders" as applicantGenders {
@@ -159,14 +147,8 @@
         * country_code: VARCHAR(2)
         * document_number: VARCHAR(100)
 
-        * audit_creation_user: VARHCAR(255)
-        * audit_creation_user_group: VARCHAR(255)
-        * audit_creation_date: VARCHAR(10)
         * audit_creation_date_time: VARCHAR(20)
-        * audit_last_update_user: VARCHAR(255)
-        * audit_last_update_date: VARCHAR(10)
         * audit_last_update_date_time: VARCHAR(20)
-        * audit_last_accessed_date_time: VARCHAR(20)
     }
 
     entity "Applicant Postal Addresses" as applicantPostalAddresses {
