@@ -61,6 +61,8 @@
         * applicant_id: UUID <<PK>> <<generated>>
         --
         * session_id: VARCHAR(50)
+        * application_type: VARCHAR(3)
+        * organization_id: UUID <<FK>>
 
         * person_name_prefix_code: VARCHAR(10) <<FK>>
         * person_given_name: VARCHAR(255)
@@ -69,23 +71,26 @@
         * person_birth_name: VARCHAR(255)
 
         * gender_code: VARCHAR(2) <<FK>>
-        * civil_status_code: VARCHAR(5) <<FK>>
-        * accounting_sector_code: VARCHAR(5) <<FK>>
-        * income_type_code: VARCHAR(5) <<FK>>
 
         * birth_date: VARCHAR(10)
+        * birth_place_country_code: VARCHAR(2) <<FK>>
 
-        * birth_place_country_code: VARCHAR(2)
-
-        * organization_id: UUID <<FK>>
+        * residence_country_code: VARCHAR(2) <<FK>>
+        * civil_status_code: VARCHAR(5) <<FK>>
+        * occupation_code: VARCHAR(5) <<FK>>
+        * accounting_sector_code: VARCHAR(5) <<FK>>
 
         * employment_status_code: VARCHAR(5) <<FK>>
-        * employment_sub_activity_code: VARCHAR(5) <<FK>>
-        * employment_sub_activity_comments: VARCHAR(255)
+        * employment_start_date: VARCHAR(10)
         * employment_employeer_name: VARCHAR(255)
         * employment_employeer_activity_category_code: VARCHAR(2) <<FK>>
-        * employment_employeer_activity_sub_category_code: VARCHAR(2) <<FK>>
         * employment_employeer_control_stake_indicator: BOOLEAN
+
+        * residential_status_code: VARCHAR(2) <<FK>>
+
+        * finance_number_of_dependents: SMALLINT
+        * finance_total_expenses_amount: SMALLINT
+        * finance_total_expenses_currency: VARCHAR(3)
 
         * audit_creation_date_time: VARCHAR(20)
         * audit_last_update_date_time: VARCHAR(20)
@@ -99,13 +104,24 @@
 
     applicants }|--|| applicantGenders
 
+    entity "Applicant Income" as applicantIncomes {
+        * applicant_income_id: UUID <<PK>> <<generated>>
+        --
+        * applicant_id: UUID
+        * income_type: VARCHAR(5) <<FK>>
+        * income_amount: SMALLINT
+        * income_currency: VARCHAR(3)
+    }
+
+    applicants ||--|{ applicantIncomes
+
     entity "Applicant Income Types" as applicantIncomeTypes {
         * income_type_code: VARCHAR(5) <<PK>>
         --
         * income_type_description: VARCHAR(255)
     } 
 
-    applicants }|--|| applicantIncomeTypes
+    applicantIncomes }|--|| applicantIncomeTypes
 
     entity "Applicant Civil Statutes" as applicantCivilStatutes {
         * civil_status_code: VARCHAR(5) <<PK>>
@@ -146,25 +162,13 @@
 
         * country_code: VARCHAR(2)
         * document_number: VARCHAR(100)
-
-        * audit_creation_date_time: VARCHAR(20)
-        * audit_last_update_date_time: VARCHAR(20)
     }
 
     entity "Applicant Postal Addresses" as applicantPostalAddresses {
         * postal_address_id: UUID <<PK>> <<generated>>
         --
         * applicant_id: UUID <<FK>>
-        * postal_address_main: BOOLEAN
-
         * address_type_code: VARCHAR(10) <<FK>>
-        
-        * address_period_start_date_time: VARCHAR(20)
-        * address_period_end_date_time: VARCHAR(20)
-        * address_period_start_date: VARCHAR(10)
-        * address_period_end_date: VARCHAR(10)
-        * address_period_start_time: INTEGER
-        * address_period_end_time: INTEGER
     }
 
     entity "Applicant Postal Address Types" as applicantPostalAddressTypes {
@@ -179,52 +183,24 @@
         * phone_address_id: UUID <<PK>> <<generated>>
         --
         * applicant_id: UUID <<FK>>
-        * phone_address_main: BOOLEAN
 
         * mobile_number: VARCHAR(35)
         * phone_number: VARCHAR(35)
-        * fax_number: VARCHAR(35)
-        * pager_number: VARCHAR(35)
-        * masked_number: VARCHAR(35)
         * international_code: VARCHAR(4)
-        * extension: VARCHAR(35)
-
-        * use_code: VARCHAR(5) <<FK>>
     }
-
-    entity "Applicant Phone Device Usage Codes" as applicantPhoneDeviceUsageCodes {
-        * usage_code: VARCHAR(5)
-        --
-        * usage_description: VARCHAR(255)
-    }
-
-    applicantPhoneAddresses }|--|| applicantPhoneDeviceUsageCodes
 
     entity "Applicant Electronic Addresses" as applicantElectronicAddresses {
         * electronic_address_id: UUID <<PK>> <<generated>>
         --
         * applicant_id: UUID <<FK>>
         * electronic_address_main: BOOLEAN
-
         * email_address: VARCHAR(256)
-        * preferred_indicator: BOOLEAN
-        * primary_indicator: BOOLEAN
-
-        * use_code: VARCHAR(5) <<FK>>
     }
-
-    applicantElectronicAddresses }|--|| applicantPhoneDeviceUsageCodes
 
     entity "Applicant Employment Statutes" as applicantEmploymentStatutes {
         * employment_status_code: VARCHAR(5) <<PK>>
         --
         * employment_status_description: VARCHAR(255)
-    }
-
-    entity "Applicant Employment Sub Activities" as applicantEmploymentSubActivities {
-        * employment_sub_activity_code: VARCHAR(5) <<PK>>
-        --
-        * employment_sub_activity_description: VARCHAR(255)
     }
 
     applicants }|--|| organizations
@@ -235,8 +211,6 @@
     applicants ||--|{ applicantPhoneAddresses
     applicants ||--|{ applicantElectronicAddresses
     applicants }|--|| applicantEmploymentStatutes
-    applicants }|--|| applicantEmploymentSubActivities
-    applicants }|--|| organizationAccountingSectors
     applicants }|--|| organizationEconomicActivityCategories
     applicants }|--|| organizationEconomicActivitySubCategories
 @enduml
