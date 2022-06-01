@@ -4,30 +4,26 @@
     actor User as user
     participant OrganizationController as organizationController
     participant OrganizationService as organizationService
-    participant OrganizationMapper as organizationMapper
     participant OrganizationValidator as organizationValidator
     participant OrganizationRepository as organizationRepository
-    database PostgreSQL as db
+    database MongoDB as db
+    queue Kafka as kafka
 
-    user -> organizationController: OrganizationDTO in the request body
-        organizationController -> organizationService: OrganizationDTO to create
+    user -> organizationController: Organization DTO in the request body
+        organizationController -> organizationService: Organization DTO to create
 
-            organizationService -> organizationValidator: Validate the incoming OrganizationDTOs
+            organizationService -> organizationValidator: Validate the incoming Organization DTOs
             alt Validation failure
                 organizationValidator -> organizationValidator: Throw an instance of Validation Exception
             end
 
-            organizationService -> organizationMapper: Map OrganizationDTO to Organization entity
-            organizationMapper -> organizationService: Mapper Organization entity
-
-            organizationService -> organizationRepository: Save Organization entity
+            organizationService -> organizationRepository: Save Organization DTO
                 organizationRepository -> db: Insert record
                 db -> organizationRepository: Saved record
-            organizationRepository -> organizationService: Saved Organization entity
+            organizationRepository -> organizationService: Saved Organization DTO
 
-            organizationService -> organizationMapper: Map Organization entity to OrganizationDTO
-            organizationMapper -> organizationService: Mapped OrganizationDTO
+            organizationService -> kafka: Organization created event
 
-        organizationService -> organizationController: Created OrganizationDTO
+        organizationService -> organizationController: Created Organization DTO
     organizationController -> user: 201 CREATED response code and Location header
 @enduml

@@ -4,15 +4,15 @@
     actor User as user
     participant OrganizationController as organizationController
     participant OrganizationService as organizationService
-    participant OrganizationMapper as organizationMapper
     participant OrganizationValidator as organizationValidator
     participant OrganizationRepository as organizationRepository
-    database PostgreSQL as db
+    database MongoDB as db
+    queue Kafka as kafka
 
     user -> organizationController: Organization DTO in the request body,\nOrganization ID in the query string
         organizationController -> organizationService: Organization DTO to update,\nOrganization ID to update
 
-            organizationService -> organizationValidator: Validate the incoming OrganizationDTOs
+            organizationService -> organizationValidator: Validate the incoming Organization's DTO
             alt Validation failure
                 organizationValidator -> organizationValidator: Throw an instance of Validation Exception
             end
@@ -26,21 +26,14 @@
                 organizationService -> organizationService: Throw an instance of Not Found Exception
             end 
 
-            organizationService -> organizationMapper: Map existing Organzation entity or Organization DTO
-            organizationMapper -> organizationService: Mapped existing Organization DTO
-
             organizationService -> organizationService: Update existing Organization DTO with values\n from DTO from the request
 
-            organizationService -> organizationMapper: Map updated Organization DTO to Organization entity
-            organizationMapper -> organizationService: Mapped update Organization entity
-
-            organizationService -> organizationRepository: Save Organization entity
+            organizationService -> organizationRepository: Save Organization DTO
                 organizationRepository -> db: Update record
                 db -> organizationRepository: Updated record
-            organizationRepository -> organizationService: Saved Organization entity
+            organizationRepository -> organizationService: Saved Organization DTO
 
-            organizationService -> organizationMapper: Map Organization entity to Organization DTO
-            organizationMapper -> organizationService: Mapped Organization DTO
+            organizationService -> kafka: Organization updated event
 
         organizationService -> organizationController: Updated Organization DTO
     organizationController -> user: 204 NO CONTENT header

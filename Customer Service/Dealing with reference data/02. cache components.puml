@@ -1,0 +1,26 @@
+@startuml Dealing with reference data
+
+    interface CivilStatusService {
+        Optional<CivilStatus>: findByCode(String code)
+        Optional<CivilStatus>: findByDescription(String description)
+    }
+
+    class CivilStatusServiceMongoImpl
+    class CivilStatusServiceRemoteImpl
+    class CivilStatusServiceEnumImpl
+
+    CivilStatusServiceMongoImpl --|> CivilStatusService
+    CivilStatusServiceRemoteImpl --|> CivilStatusService
+    CivilStatusServiceEnumImpl --|> CivilStatusService
+
+    interface CivilStatusMongoRepository
+    
+    CivilStatusMongoRepository --> CivilStatusServiceMongoImpl
+
+    class WebClient
+    class CivilStatusRemoteTransformer
+
+    WebClient --> CivilStatusServiceRemoteImpl
+    CivilStatusRemoteTransformer --> CivilStatusServiceRemoteImpl
+
+@enduml

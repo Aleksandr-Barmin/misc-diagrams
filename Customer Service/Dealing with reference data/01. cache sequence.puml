@@ -1,0 +1,18 @@
+@startuml Dealing with the reference data
+    participant Validator as validator
+    participant CivilStatusService as civilStatusService
+    participant SpringCache as springCache
+    participant DataSource as dataSource
+
+    validator -> civilStatusService: Get Civil Status by description
+        civilStatusService -> springCache: Get Civil Status from the cache
+        springCache -> civilStatusService: Value from the cache
+
+        alt Object is not in cache
+            civilStatusService -> dataSource: Get value from DB or remote service
+            dataSource -> civilStatusService: Value from DB or remote service
+
+            civilStatusService -> springCache: Put value into the cache
+        end
+    civilStatusService -> validator: Requested Civil Status
+@enduml
