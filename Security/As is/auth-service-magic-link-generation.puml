@@ -1,0 +1,35 @@
+@startuml Magic Link Generation Process
+
+    actor "Service Client" as serviceClient
+
+    participant "Auth Challenge Service" as authChallengeService
+    participant "Cognito Provider (Remote AWS)" as cognitoProvider
+    participant "Session ID Generator" as sessionIdGenerator
+    participant "Magic Link Challenge Service" as magicLinkChallengeService
+    participant "EMail Service" as emailService
+
+    serviceClient -> authChallengeService: Initiate auth challenge
+        ' Check if user already exists in Cognito or create a new one
+        authChallengeService -> cognitoProvider: Get user by customer ID
+        cognitoProvider -> authChallengeService: Info about requested customer
+        alt User does not exist
+            authChallengeService -> cognitoProvider: Create a new user
+            authChallengeService -> cognitoProvider: Add customer to the CUSTOMER_GROUP
+        else User already exists in Cognito
+            authChallengeService -> cognitoProvider: Check if customer's email is validated
+        end
+
+        ' Generate a session
+        authChallengeService -> sessionIdGenerator: Generate a session ID
+        sessionIdGenerator -> authChallengeService: Session ID (UUID)
+
+        ' Generate JWT token for the magic link and send it via email
+        authChallengeService -> magicLinkChallengeService: Create a challenge JWT
+            magicLinkChallengeService -> magicLinkChallengeService: Generate email by template
+            magicLinkChallengeService -> emailService: Send email by template
+            emailService -> magicLinkChallengeService: Message ID of a sent message
+        magicLinkChallengeService -> authChallengeService: Message ID of a sent message
+
+    authChallengeService -> serviceClient: Session Response DTO
+
+@enduml

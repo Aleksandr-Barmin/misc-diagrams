@@ -1,0 +1,49 @@
+@startuml Application security in servlet containers
+    title Application security in servlet containers (only security aspect)
+
+    actor "Service Client" as serviceClient
+    participant "Application Server" as applicationService
+    participant "Servlet Filter" as servletFilter
+    participant "Spring Security" as springSecurity
+    participant "Dispatcher Servlet" as dispatcherServlet
+    participant "Spring Application" as springApplication
+    participant "Spring Security\nAspect" as securityAspect
+    participant "Spring Controller" as springController
+
+    serviceClient -> applicationService: HTTP Request
+        applicationService -> servletFilter: HTTP Request
+            servletFilter -> springSecurity: Delegate the check of \nHTTP Request
+            
+            alt Unauthenticated request
+                springSecurity -> servletFilter: 401 Unauthorized response
+            else Has authentication mechanism configured
+                springSecurity -> servletFilter: 302 Permanent redirect \nto the authentication mechanism
+            else Authenticated request
+                springSecurity -> springSecurity: Configure Security Context Holder
+                springSecurity --> servletFilter: Return the control
+
+                servletFilter -> dispatcherServlet: Forward request for processing
+
+                    dispatcherServlet -> springApplication: Forward request for processing
+
+                        springApplication -> securityAspect: Forward request for audit
+                        securityAspect -> securityAspect: Audit the request and security context
+
+                        alt Unauthorized request
+                            securityAspect -> springApplication: 403 Forbidden
+                        else Authorized request
+                            securityAspect -> springController: Receive a request
+                            springController -> securityAspect: HTTP Response
+
+                            securityAspect -> springApplication: HTTP Response
+                        end
+
+                    springApplication -> dispatcherServlet: HTTP Response
+
+                dispatcherServlet -> servletFilter: HTTP Response
+            end
+            
+        servletFilter -> applicationService: HTTP Response
+    applicationService -> serviceClient: HTTP Response
+
+@enduml

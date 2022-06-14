@@ -1,0 +1,68 @@
+@startuml Auth Service - Register a new user
+    actor Client as client
+
+    participant "Auth Controller" as authController
+    participant "Registraion Service" as registrationService
+    participant "Metrics Service" as metricsService
+    participant "Customer Service (Remote)" as customerService
+    participant "Credit Application Service (Remote)" as creditApplicationService
+    participant "Business Service (Remote)" as businessService
+    participant "Attribution Service (Remote)" as attributionService
+    participant "Auth Challenge Service" as authChallengeService
+
+    client -> authController: Registration Request DTO in the request body\n(email, first name, last name, attribution)
+        authController -> registrationService: Registration Request DTO
+            registrationService -> metricsService: Increase REGISTRATION counter
+            
+            ' Validate the email
+            registrationService -> registrationService: Validate Email
+            alt Email validation failure
+                registrationService -> registrationService: Throw Bad Request Exception
+            end
+
+            ' Create a new customer or update an existing customer
+            registrationService -> customerService: Find or create a customer
+            customerService -> registrationService: Customer DTO
+
+            ' Validate the created or updated customer
+            registrationService -> registrationService: Validate customer not deactivated
+            alt Customer is deactivated
+                registrationService -> registrationService: Throw Forbidden Exception
+            end
+
+            ' Create a new application or update an existing one
+            registrationService -> creditApplicationService: Find or create an application \nby customer ID
+            creditApplicationService -> registrationService: Application DTO
+
+            ' Validate a created or updated application
+            registrationService -> registrationService: Validate the application
+            alt Application is not valid
+                registrationService -> registrationService: Throw Internal Server Error exception
+            end
+
+            ' Different behavior for PCA/BCA journeys
+            alt BCA
+                registrationService -> businessService: Find business by customer
+                businessService -> registrationService: List of Business DTO
+
+                alt Businesses are not available
+                    registrationService -> businessService: Create a new business \nfor the given customer
+                    businessService -> registrationService: Business DTO
+
+                    registrationService -> attributionService: Create business attibution
+                else Businesses are available
+                    registrationService -> metricsService: Increate REGISTER_SHOULD_BE_LOGIN counter
+                end
+            else PCA
+                registrationService -> attributionService: Create customer attribution
+            end
+
+            ' Generate magic link, will be returned
+            registrationService -> authChallengeService: Generate magic link params \nand initiate auth challenge
+            authChallengeService -> registrationService: Session Response DTO
+
+            registrationService -> metricsService: Increate REGISTER_SENT_EMAIL counter
+
+        registrationService -> authController: Session Response DTO
+    authController -> client: Session Response DTO in the response body \nand 201 CREATED response status
+@enduml

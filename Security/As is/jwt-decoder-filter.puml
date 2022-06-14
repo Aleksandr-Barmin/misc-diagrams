@@ -1,0 +1,22 @@
+@startuml Spring Security Filters in Sirius apps
+    title Spring Security Filters in Sirius apps
+
+    (*) --> A request is intercepted by Spring Security
+        --> Request is passed to JWTDecoderFilter
+        --> Extract X-JWT-Assertion header from the request
+        if "Header is in the request" then
+            --> [Yes] Get JWT Provider
+            --> Verify token with JWT Provider
+            if "Token not valid" then
+                --> Set up a security context
+                --> (*)
+            else
+                --> [No] Throw JWTFilterException exception
+                --> (*)            
+            endif
+        else
+            --> [No] Return 401 Unauthorized response
+            --> (*)
+        endif
+@enduml
+

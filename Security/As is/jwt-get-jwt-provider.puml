@@ -1,0 +1,49 @@
+@startuml Get JWT Provider and validate token
+    title Get JWT Provider and validate token
+
+    (*) --> Parse JWT Token (JSON to object)
+        --> Extract "iss" claim (property)
+        if "Claim is present" then
+            --> [Yes] Get provider with the given name \nfrom providerMap \n(actually config)
+            if "Provider is present" then
+                --> [Yes] Next a provider from providerMap is used
+                --> Check if token is not empty
+                if "Token is not empty" then
+                    if "Token is not expired" then
+                        --> [Yes] Get algorithm for verifying the token
+                        if "Algorithm is available" then
+                            --> [Yes] Check token signature with given algorithm
+                            if "Signature is correct" then
+                                --> [Yes] Verify claims
+                                if "Claim is present"
+                                    --> [Yes] Token is valid
+                                    --> (*)
+                                else
+                                    --> [No] Throw InvalidClaimException
+                                    --> (*)
+                                endif
+                            else
+                                --> [No] SignatureVerificationException
+                                --> (*)
+                            endif
+                        else
+                            --> [No] Throw AlgorithmMismatchException
+                            --> (*)
+                        endif
+                    else
+                        --> [No] Throw InvalidTokenException
+                        --> (*)
+                    endif
+                else
+                    --> [No] Throw BadRequestException
+                    --> (*)
+                endif
+            else
+                --> [No] Throw JWTFilterException exception
+                --> (*)
+            endif
+        else
+            --> [No] Throw JWSException exception
+            --> (*)
+        endif
+@enduml

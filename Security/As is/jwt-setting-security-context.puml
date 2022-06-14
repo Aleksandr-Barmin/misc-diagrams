@@ -1,0 +1,53 @@
+@startuml Setting Security Context
+
+    title Setting Security Context
+
+    (*) --> Get issuer from claims (Issues)
+        --> Get user type from claims (User type)
+        --> Get role from claims  (Role)
+        
+        if "Select JWT Provider"
+            --> [User type is APPLICATION \nOR Issuer is ADFS \nOR (Issuer is SIRIUS AND Role is SERVICE)] The request is from a service \nOR has ADFS-issued JWT
+
+            if "Issuer is ADFS"
+                --> [Yes] Get ADFS username from claims
+                
+                if "ADFS username is present"
+                    --> [Yes] Get roles from GROUP claims
+                    --> "Filter out roles \nwhich are not in list"
+                    --> Create a security context with a list of roles
+                    --> (*)
+                else
+                    --> [No] Throw JWT Filter Exception
+                    --> (*)
+                endif
+            else
+                --> [No] Get service name from username claim
+                --> Create a security context for service
+                --> (*)
+            endif
+        else
+            --> [User type is APPLICATION_USER \nOR (Issuer is SIRIUS AND Role is CUSTOMER)] SIRIUS-issued JWT
+
+            --> Get account ID from claims
+            if "Account ID is present"
+                --> [Yes] Get roles from ROLES claim
+                --> "Filter out roles \nwhich are not in list"
+                --> Create a security context with a list of roles
+                --> (*)
+            else
+                --> [No] Throw JWT Filter Exception
+                --> (*)
+            endif
+        else
+            --> [Issuer is ADFS] COGNITO-issued JWT
+            --> Get account ID from claims
+            --> Get roles and scopes from claims
+            --> Create a security context with a list of roles
+            --> (*)
+        else
+            --> [Nothing] Throw JWT Filter Exception
+            --> (*)
+        endif
+
+@enduml
